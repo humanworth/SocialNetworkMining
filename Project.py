@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Dec 13 12:10:54 2021
+Created on Sat Feb 13 12:10:54 2021
 
 @author: Ali
 """
@@ -56,7 +56,7 @@ def show2D(data):
     return fig
 
 ############################ Loading You Tube Dataset####################
-graph = load_edge_list('Dataset\YouTube\soc-youtube.mtx')
+graph = load_edge_list('D:\PhdResearch\RepresentationLearning\Project\Dataset\YouTube\soc-youtube.mtx')
 adjacency = graph.adjacency
 names = graph.names
 #position = graph.position
@@ -92,6 +92,12 @@ image = svg_graph(adjacency,embeddingPCA,edge_width=0.08,display_node_weight=Tru
 
 SVG(image)
 
+#############SHowing PCA 3D
+#pca = PCA(3)
+#embeddingPCA = pca.fit_transform(adjacency)
+#show3D(embeddingPCA)  ###########Show embedding graph space 3D
+
+
 
 
 #############Embedding Using Random Walk
@@ -119,7 +125,7 @@ show2D(embeddingSVD)
 
 
 
-################################# Task 1: link Prediction
+################################# Task 1: ink Prediction
 from sknetwork.linkpred import JaccardIndex, AdamicAdar, is_edge, whitened_sigmoid
 
 ################# Link Prediction Using Adamic Adar
@@ -156,8 +162,6 @@ cosine_modularity(adjacency, embeddingRW, weights='degree')
 cosine_modularity(adjacency, embeddingSVD, weights='degree')
 
 
-
-
 ############################## Task 4: Clustering of the network
 from sknetwork.clustering import Louvain, modularity
 from sknetwork.linalg import normalize
@@ -165,10 +169,6 @@ from sknetwork.linalg import normalize
 adjacency = graph.adjacency
 k = 300
 adjacency = adjacency[:k][:,:k]
-
-
-
-
 
 ################### Clustering Using Louvain
 louvain = Louvain(resolution=1,return_membership=True)
@@ -197,16 +197,6 @@ SVG(image)
 print("Modularity: ",modularity(adjacency, labels))
 adj=kmeans.adjacency_
 
-
-
-
-
-
-
-
-
-
-
 ########################### Task 5: Finding Shortest path in the graph
 from sknetwork.path import shortest_path,distance
 src = 2 
@@ -219,3 +209,73 @@ image = svg_graph(adjacency,position=embeddingRW, edge_labels=edge_labels,edge_w
 SVG(image)
 
 
+
+
+################################## Performing MLLE
+
+from sklearn.datasets import load_digits
+from sklearn.manifold import LocallyLinearEmbedding
+X, _ = load_digits(return_X_y=True)
+X.shape
+
+embedding = LocallyLinearEmbedding(n_components=2,method='modified')
+X_transformed = embedding.fit_transform(X[:100])
+X_transformed.shape
+##########################################
+
+from IPython.display import SVG
+import numpy as np
+from sknetwork.data import karate_club, painters, movie_actor
+from sknetwork.embedding import Spectral, BiSpectral, cosine_modularity
+from sknetwork.visualization import svg_graph, svg_digraph, svg_bigraph
+
+graph = load_edge_list('D:\PhdResearch\RepresentationLearning\Project-Ali Abbasi Tadi\Dataset\YouTube\soc-youtube.mtx')
+adjacency = graph.adjacency
+names = graph.names
+#position = graph.position
+
+
+
+adjacency = graph.adjacency
+#position = graph.position
+k = 300
+adjacency = adjacency[:k][:,:k]
+
+from sknetwork.embedding import Spectral, BiSpectral, cosine_modularity, LaplacianEmbedding
+
+from sknetwork.embedding import PCA,RandomProjection,SVD, GSVD
+from sknetwork.ranking import PageRank,Diffusion
+from sknetwork.clustering import KMeans
+from sknetwork.embedding import GSVD
+kmeans = KMeans(n_clusters = 14, embedding_method=RandomProjection(2,random_walk=True,normalized=True))
+labels = kmeans.fit_transform(adjacency)
+
+
+spectral = LaplacianEmbedding(2, normalized=False)
+embedding = spectral.fit_transform(adjacency)
+embedding.shape
+image = svg_graph(adjacency, embedding, labels=labels)
+SVG(image)
+
+
+
+#####################################################
+
+
+gsvd = GSVD(2, normalized=False)
+embedding = gsvd.fit_transform(adjacency)
+image = svg_graph(adjacency, embedding, labels=labels)
+SVG(image)
+
+#########################################
+from sknetwork.embedding import Spring
+from sknetwork.utils import KNNDense, CNNDense
+knn = KNNDense(n_neighbors=3, undirected=True)
+adjacency = knn.fit_transform(adjacency)
+image = svg_graph(adjacency, labels=labels, display_edge_weight=False)
+SVG(image)
+
+data=adjacency.getcol(2)
+data2=adjacency.getrow(299)
+
+############################################
